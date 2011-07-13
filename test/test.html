@@ -1,17 +1,24 @@
 <html>
   <head>
     <title>Test Suite</title> 
+    <script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
+    <script src="../outliner.js"></script>
     <script>
+
       function assert(value, desc) {
         var li = document.createElement("li");
         li.className = value ? "pass" : "fail";
         li.appendChild(document.createTextNode(desc));
         document.getElementById("results").appendChild(li);
       }
+
       window.onload = function() { 
-        assert(true, "The test suite is running.");
-        assert(false, "Fail!");
+        var madeOutline = makeOutline(document.getElementById('test')),
+            outline = ['My fantastic site',['About me',['What I do for a living']],['Contact']];
+       
+        assert(_.isEqual(madeOutline, outline), "Test sample's outline is correct");
       };
+
     </script>
     <style> 
       #results li.pass { color: green; } 
@@ -20,5 +27,22 @@
   </head>
   <body> 
     <ul id="results"></ul>
+
+    <hr />
+    <div id="test">
+      <h1>My fantastic site</h1>
+      <section>
+        <h1>About me</h1>
+        <p>I am a man who lives a fascinating life. Oh the stories I could tell you...</p>
+        <section>
+          <h1>What I do for a living</h1>
+          <p>I sell enterprise-managed ant farms.</p>
+        </section>
+      </section>
+      <section>
+        <h1>Contact</h1>
+        <p>Shout my name and I will come to you.</p>
+      </section>
+    </div>
   </body>
 </html>
