@@ -1,8 +1,3 @@
-// See http://html5doctor.com/document-outlines/
-// That article begins with info on HTML4 document outlines
-// This doesn't do that yet, it just handles the HTML5 stuff beneath in the article
-// I'm sure there are problems with handling that HTML5 stuff tho
-
 var headingElements = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'],
     sectioningElements = ['SECTION', 'ARTICLE', 'NAV', 'ASIDE'];
 
@@ -41,34 +36,4 @@ function makeOutline(root) {
         el = el.nextSibling;
     }
     return ar;
-};
-
-var outline = makeOutline(document.body);
-
-// This is just used for displaying the outline. 
-// Inspect the outline variable to see the generated array:
-// console.log(outline);
-    
-function describeOutline(outline) {
-    var indentForDepth = function(depth) {
-        var str = '';
-        for(i=depth;i>0;i--) {
-            str += '\t';
-        }
-        return str;
-    },
-    childrenAreStrings = function(ar, depth) {
-        var depth = (depth && (depth + 1)) || 1;
-        return ar.map(function(item) {
-            if({}.toString.call(item)=='[object Array]') {
-                return childrenAreStrings(item, depth).join('\n');
-            } else {
-                return indentForDepth(depth) + '- ' + String(item);
-            }
-        });
-    };
-    // Make sure all items in ar are strings
-    return childrenAreStrings(outline).join('\n');    
 }
-
-(document.getElementsByTagName('pre')[0]).textContent = describeOutline(outline);
