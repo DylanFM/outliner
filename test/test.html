@@ -2,6 +2,7 @@
   <head>
     <title>Test Suite</title> 
     <script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
+    <script src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
     <script src="../outliner.js"></script>
     <script>
 
@@ -17,6 +18,8 @@
         var root = document.getElementById(rootId),
             madeOutline = makeOutline(root),
             result = assert(_.isEqual(madeOutline, expected), '#' + rootId);
+
+        root.nextSibling.textContent = JSON.stringify(madeOutline, null, 2);
 
         if(!result) {
           console.log(rootId + ' made', madeOutline);
@@ -38,6 +41,9 @@
 
     </script>
     <style> 
+      body > div {width:45%;margin-right:5%;float:left;}
+      pre {width:50%;float:right;}
+      hr {clear:both;}
       .pass { color: green; } 
       .fail { color: red; }
     </style> 
@@ -61,6 +67,7 @@
         <p>Shout my name and I will come to you.</p>
       </section>
     </div>
+    <pre></pre>
 
     <hr />
     <div id="test2">
@@ -74,6 +81,7 @@
         <p>We've discussed a lot of new elements here at HTML5Doctor...</p>
       </article>
     </div>
+    <pre></pre>
 
     <hr />
     <div id="test3">
@@ -86,6 +94,7 @@
         </section>
       </aside>
     </div>
+    <pre></pre>
 
     <hr />
     <div id="test4">
@@ -97,6 +106,7 @@
         <p>Lorem Ipsum dolor set amet</p>
       </article>
     </div>
+    <pre></pre>
 
     <hr />
     <div id="test5">
@@ -114,6 +124,7 @@
         </blockquote>
       </section>
     </div>
+    <pre></pre>
 
     <hr />
     <div id="test6">
@@ -125,6 +136,7 @@
       <h2>Contact</h2>
       <p>Shout my name and I will come to you.</p>
     </div>
+    <pre></pre>
 
   </body>
 </html>
