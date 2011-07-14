@@ -10,13 +10,18 @@
         li.className = value ? "pass" : "fail";
         li.appendChild(document.createTextNode(desc));
         document.getElementById("results").appendChild(li);
+        return !!value;
+      }
+
+      function testOutline(rootId, expected) {
+        var madeOutline = makeOutline(document.getElementById(rootId));
+        return assert(_.isEqual(madeOutline, expected), '#' + rootId);
       }
 
       window.onload = function() { 
-        var madeOutline = makeOutline(document.getElementById('test')),
-            outline = ['My fantastic site',['About me',['What I do for a living']],['Contact']];
-       
-        assert(_.isEqual(madeOutline, outline), "Test sample's outline is correct");
+        // Tests for the sample markup
+        testOutline('test1', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
+        testOutline('test2', ['HTML5 Doctor articles',['The section element'],['The article element']]);
       };
 
     </script>
@@ -29,7 +34,7 @@
     <ul id="results"></ul>
 
     <hr />
-    <div id="test">
+    <div id="test1">
       <h1>My fantastic site</h1>
       <section>
         <h1>About me</h1>
@@ -44,5 +49,39 @@
         <p>Shout my name and I will come to you.</p>
       </section>
     </div>
+
+    <hr />
+    <div id="test2">
+      <h2>HTML5 Doctor articles</h2>
+      <article>
+        <h1>The section element</h1>
+        <p>We doctors are a bunch of chums using HTML5 and writing about how we do it...</p>
+      </article>
+      <article>
+        <h1>The article element</h1>
+        <p>We've discussed a lot of new elements here at HTML5Doctor...</p>
+      </article>
+    </div>
+
+    <hr />
+    <div id="test3">
+    </div>
+
+    <hr />
+    <div id="test4">
+    </div>
+
+    <hr />
+    <div id="test5">
+    </div>
+
+    <hr />
+    <div id="test6">
+    </div>
+
+    <hr />
+    <div id="test7">
+    </div>
+
   </body>
 </html>
