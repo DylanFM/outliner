@@ -14,6 +14,10 @@ function isSectioningElement(el) {
   return sectioningElements.indexOf(el.tagName) > -1;
 }
 
+function isDiv(el) {
+  return el.tagName === 'DIV';
+}
+
 function isHeadingContentElement(el) {
   return headingContent.indexOf(el.tagName) > -1;
 }
@@ -40,7 +44,7 @@ function dataForHeadingContent(h) {
 
 function makeOutline(outlinee, parent) {
 
-  var section, current_outlinee, heading, outline;
+  var section, current_outlinee, heading, outline, children;
 
   section = { 
     outlinee: outlinee, 
@@ -52,24 +56,47 @@ function makeOutline(outlinee, parent) {
   // Walk
   while(current_outlinee) {
 
-    console.log(current_outlinee);
+    // Make sure we're dealing with element nodes
+    if (current_outlinee.nodeType === 1) {
 
-    // If it's a sectioning element, create a new level in the outline
-    if(isSectioningElement(current_outlinee)) {
+      // If this element is heading content we want it
+      if(isHeadingContentElement(current_outlinee)) {
 
-      // Add a new outline for this sectioning element to the current outlinee's outline
-      section.outline.push(makeOutline(current_outlinee, section));
+        // If we have an hgroup, find its top heading, otherwise just add the heading
+        if (!heading && (heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
 
-    // If this element is heading content we want it
-    } else if(isHeadingContentElement(current_outlinee)) {
+          // We're tracking some more data so we can check rankings of heading content
+          heading = dataForHeadingContent(heading);
 
-      // If we have an hgroup, find its top heading, otherwise just add the heading
-      // Track it if we have a heading
-      if (!heading && (heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
-        // We're tracking some more data so we can check rankings of heading content
-        section.outline.push(dataForHeadingContent(heading));
+          // Make sure this heading has content
+          if (heading.content.length) {
+            section.outline.push(heading);
+          }
+
+        }
+
+      } else if (isSectioningElement(current_outlinee) || isDiv(current_outlinee)) {
+
+        // Make an outline for the element
+        children = makeOutline(current_outlinee, section);
+
+        if (children && children.length) {
+
+          // If this is a div, it can still contain content
+          if(isDiv(current_outlinee)) {
+            
+            // Don't add a new section, but append it to the current section
+            section.outline = section.outline.concat(children);
+
+          // If it's a sectioning element
+          } else {
+
+            // Create a section in the outline
+            section.outline.push(children);
+
+          }
+        }
       }
-
     }
 
     // Move on to the next sibling
@@ -80,11 +107,14 @@ function makeOutline(outlinee, parent) {
   // Return this outlinee's outline, but convert it to a simple array
   outline = section.outline.map(function(i) {
     // We either want the outline or the content - arrays & strings
-    return Array.isArray(i) ? i : i.content; 
+    if (!Array.isArray(i) && i.content) {
+      return i.content;
+    }
+    return i;
   });
 
   // If we're not at the root and there are no headings
-  if(parent && outline.every(Array.isArray)) {
+  if(parent && !isDiv(outlinee) && outline.every(Array.isArray)) {
     // Give it a generated heading
     outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
   }
