@@ -31,27 +31,29 @@ function topInHgroup(hgroup) {
 
 function makeOutline(outlinee, parent) {
 
-  var section, current_outlinee, heading, children;
+  var section, currentOutlinee, heading, children, sections, headingOutline, lasSection;
 
   section = { 
     outlinee: outlinee, 
     outline: [],
-    heading: undefined 
+    heading: isHeadingContentElement(outlinee) ? outlinee : undefined // If we've passed a heading in we're going to set it automatically
   };
 
-  current_outlinee = outlinee.firstChild;
+  // Usually we'll walk through children, but that's going to be different if we're making a HTML4-style outline for a heading
+  currentOutlinee = isHeadingContentElement(outlinee) ? outlinee.nextSibling : outlinee.firstChild;
 
   // Walk
-  while(current_outlinee) {
+  while(currentOutlinee) {
 
     // Make sure we're dealing with element nodes
-    if (current_outlinee.nodeType === 1) {
+    if (currentOutlinee.nodeType === 1) {
 
       // If this element is heading content we want it
-      if(isHeadingContentElement(current_outlinee)) {
+      if(isHeadingContentElement(currentOutlinee) && !currentOutlinee.OLtouched) {
 
+        // SPEC: If the current section has no heading, let the element being entered be the heading for the current section.
         // If we have an hgroup, find its top heading, otherwise just add the heading
-        if (!section.hasHeading && (heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
+        if (!section.heading && (heading = currentOutlinee.tagName.length > 2 ? topInHgroup(currentOutlinee) : currentOutlinee)) {
 
           // Make sure this heading has content
           if (heading.textContent.length) {
@@ -60,20 +62,57 @@ function makeOutline(outlinee, parent) {
             section.outline.push(heading.textContent);
 
             // Track the heading for HTML4-style stuff
-            section.heading = heading.tagName;
+            section.heading = heading;
           }
 
+        // SPEC: Otherwise, if the element being entered has a rank equal to or greater than the heading of the last section of the outline of the current outlinee, 
+        //       then create a new section and append it to the outline of the current outlinee element, so that this new section is the new last section of that outline. 
+        //       Let current section be that new section. Let the element being entered be the new heading for the current section.
+        } else {
+
+          // Make an outline for the heading
+          headingOutline = makeOutline(currentOutlinee, section);
+          headingOutline.unshift(currentOutlinee.textContent);
+
+          // If it's a heading of higher or equal ranking
+          if (currentOutlinee.tagName <= section.heading.tagName) {
+
+            if (parent) {
+              sections = parent.outline.filter(Array.isArray);
+              lastSection = sections[sections.length-1];
+
+              if (lastSection && lastSection.outline) {
+                lastSection.outline.push(headingOutline);
+              }
+
+            } else {
+              section.outline.push(headingOutline);
+            }
+
+          // SPEC: Otherwise, run these substeps:
+          //       Let candidate section be current section.
+          //       If the element being entered has a rank lower than the rank of the heading of the candidate section, then create a new section, and append it to candidate section.
+          //       (This does not change which section is the last section in the outline.) Let current section be this new section. Let the element being entered be the new heading
+          //       for the current section. Abort these substeps.
+          //       Let new candidate section be the section that contains candidate section in the outline of current outlinee.
+          //       Let candidate section be new candidate section.
+          //       Return to step 2.
+          //       Push the element being entered onto the stack. (This causes the algorithm to skip any descendants of the element.)
+          } else {
+            currentOutlinee.OLtouched = true;
+            section.outline.push(headingOutline);
+          }
         }
 
-      } else if (isSectioningElement(current_outlinee) || isDiv(current_outlinee)) {
+      } else if (isSectioningElement(currentOutlinee) || isDiv(currentOutlinee)) {
 
         // Make an outline for the element
-        children = makeOutline(current_outlinee, section);
+        children = makeOutline(currentOutlinee, section);
 
         if (children && children.length) {
 
           // If this is a div, it can still contain content
-          if(isDiv(current_outlinee)) {
+          if(isDiv(currentOutlinee)) {
             
             // Don't add a new section, but append it to the current section
             section.outline = section.outline.concat(children);
@@ -90,12 +129,12 @@ function makeOutline(outlinee, parent) {
     }
 
     // Move on to the next sibling
-    current_outlinee = current_outlinee.nextSibling;
+    currentOutlinee = currentOutlinee.nextSibling;
 
   }
 
   // If we're not at the root and there are no headings
-  if(parent && !isDiv(outlinee) && section.outline.every(Array.isArray)) {
+  if(parent && !isDiv(outlinee) && !section.heading) {
     // Give it a generated heading
     section.outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
   }
