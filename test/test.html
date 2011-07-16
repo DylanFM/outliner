@@ -18,11 +18,12 @@
             madeOutline = makeOutline(root),
             result = assert(_.isEqual(madeOutline, expected), '#' + rootId);
 
-        root.nextSibling.textContent = JSON.stringify(madeOutline, null, 2);
+        // root.nextSibling.textContent = JSON.stringify(madeOutline, null, 2);
+        console.log(madeOutline);
 
         if(!result) {
-          console.log(rootId + ' made', madeOutline);
-          console.log(rootId + ' expected', expected);
+          // console.log(rootId + ' made', madeOutline);
+          // console.log(rootId + ' expected', expected);
           root.className = 'fail';
         }
         return result;

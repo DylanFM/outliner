@@ -43,51 +43,47 @@ function dataForHeadingContent(h) {
   return { tag: h.tagName, content: h.textContent};
 }
 
-function makeOutline(outlinee, root) {
+function makeOutline(outlinee, parent) {
 
-  var section = [],
-    el = outlinee.firstChild,
-    outline, heading;
+  var section, current_outlinee, heading;
 
-  // We're going to pass the very root of the outline through
-  if(!root) {
-    root = outlinee;
-  }
+  section = { 
+    outlinee: outlinee, 
+    outline: [] 
+  };
+
+  current_outlinee = outlinee.firstChild;
 
   // Walk
-  while(el) {
+  while(current_outlinee) {
 
     // If it's a sectioning element, create a new level in the outline
-    if(isSectioningElement(el)) {
+    if(isSectioningElement(current_outlinee)) {
 
       // Add a new outline for this sectioning element to the current outlinee's outline
-      section.push(makeOutline(el, root));
+      section.outline.push(makeOutline(current_outlinee, section));
 
     // If this element is heading content we want it
-    } else if(isHeadingContentElement(el)) {
+    } else if(isHeadingContentElement(current_outlinee)) {
 
       // If we have an hgroup, find its top heading, otherwise just add the heading
       // Track it if we have a heading
-      if ((heading = (el.tagName.length > 2) ? topInHgroup(el) : el)) {
-
-        console.log(heading, dataForHeadingContent(heading));
-
+      if ((heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
         // We're tracking some more data so we can check rankings of heading content
-        section.push(dataForHeadingContent(heading));
-
+        section.outline.push(dataForHeadingContent(heading));
       }
 
     }
 
     // Move on to the next sibling
-    el = el.nextSibling;
+    current_outlinee = current_outlinee.nextSibling;
+
   }
 
-  // If there isn't a title, give it one at the start
-  if(outlinee !== root && section.every(isSection)) {
-
-    section.unshift('Untitled ' + outlinee.tagName.toLowerCase());
-
+  // If we're not at the root and there are no headings
+  if(parent && section.outline.every(isSection)) {
+    // Give it a generated heading
+    section.outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
   }
 
   // Return this outlinee's outline
