@@ -101,6 +101,8 @@ function makeOutline(outlinee, parent) {
           } else {
             currentOutlinee.OLtouched = true;
             section.outline.push(headingOutline);
+            // Doing this instead kinda makes the #test8 test look more correct to me
+            // section.outline.push([currentOutlinee.textContent]);
           }
         }
 
