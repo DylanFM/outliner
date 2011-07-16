@@ -31,7 +31,7 @@ function topInHgroup(hgroup) {
 
 function makeOutline(outlinee, parent) {
 
-  var section, currentOutlinee, heading, children, sections, headingOutline, lasSection;
+  var section, currentOutlinee, heading, children, sections, headingOutline, lastSection;
 
   section = { 
     outlinee: outlinee, 
