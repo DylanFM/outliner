@@ -1,12 +1,3 @@
-// From spec:
-//  The outline for a sectioning content element or a sectioning root element 
-//  consists of a list of one or more potentially nested sections. A section 
-//  is a container that corresponds to some nodes in the original DOM tree. 
-//  Each section can have one heading associated with it, and can contain any 
-//  number of further nested sections.
-// Thoughts:
-// - each section can have 1 heading associated with it
-
 var headingContent = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HGROUP'],
   sectioningElements = ['SECTION', 'ARTICLE', 'NAV', 'ASIDE'];
 
@@ -38,17 +29,14 @@ function topInHgroup(hgroup) {
   return top;
 }
 
-function dataForHeadingContent(h) {
-  return { tag: h.tagName, content: h.textContent};
-}
-
 function makeOutline(outlinee, parent) {
 
-  var section, current_outlinee, heading, outline, children;
+  var section, current_outlinee, heading, children;
 
   section = { 
     outlinee: outlinee, 
-    outline: [] 
+    outline: [],
+    heading: undefined 
   };
 
   current_outlinee = outlinee.firstChild;
@@ -63,14 +51,16 @@ function makeOutline(outlinee, parent) {
       if(isHeadingContentElement(current_outlinee)) {
 
         // If we have an hgroup, find its top heading, otherwise just add the heading
-        if (!heading && (heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
-
-          // We're tracking some more data so we can check rankings of heading content
-          heading = dataForHeadingContent(heading);
+        if (!section.hasHeading && (heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
 
           // Make sure this heading has content
-          if (heading.content.length) {
-            section.outline.push(heading);
+          if (heading.textContent.length) {
+
+            // Track its content
+            section.outline.push(heading.textContent);
+
+            // Track the heading for HTML4-style stuff
+            section.heading = heading.tagName;
           }
 
         }
@@ -104,20 +94,11 @@ function makeOutline(outlinee, parent) {
 
   }
 
-  // Return this outlinee's outline, but convert it to a simple array
-  outline = section.outline.map(function(i) {
-    // We either want the outline or the content - arrays & strings
-    if (!Array.isArray(i) && i.content) {
-      return i.content;
-    }
-    return i;
-  });
-
   // If we're not at the root and there are no headings
-  if(parent && !isDiv(outlinee) && outline.every(Array.isArray)) {
+  if(parent && !isDiv(outlinee) && section.outline.every(Array.isArray)) {
     // Give it a generated heading
-    outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
+    section.outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
   }
 
-  return outline;
+  return section.outline;
 }
