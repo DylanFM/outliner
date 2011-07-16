@@ -1,52 +1,7 @@
 <html>
   <head>
     <title>Test Suite</title> 
-    <script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
-    <script src="../outliner.js"></script>
-    <script>
-
-      function assert(value, desc) {
-        var li = document.createElement("li");
-        li.className = value ? "pass" : "fail";
-        li.appendChild(document.createTextNode(desc));
-        document.getElementById("results").appendChild(li);
-        return !!value;
-      }
-
-      function testOutline(rootId, expected) {
-        var root = document.getElementById(rootId),
-            madeOutline = makeOutline(root),
-            result = assert(_.isEqual(madeOutline, expected), '#' + rootId);
-
-        root.nextSibling.textContent = JSON.stringify(madeOutline, null, 2);
-
-        if(!result) {
-          console.log(rootId + ' made', madeOutline, rootId + ' expected', expected);
-          root.className = 'fail';
-        }
-        return result;
-      }
-
-      window.onload = function() { 
-        // Tests for the sample markup
-        testOutline('test1', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
-        testOutline('test2', ['HTML5 Doctor articles',['The section element'],['The article element']]);
-        testOutline('test3', [['Untitled aside',['Twitter'],['Recent comments']]]);
-        testOutline('test4', [['Title goes here']]);
-        testOutline('test5', ['Top of the outline',['A heading in the outline'],['Another heading in the outline']]);
-        testOutline('test6', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
-        testOutline('test7', ['A',['C'],['E']]);
-        testOutline('test8', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
-      };
-
-    </script>
-    <style> 
-      body > div {width:45%;margin-right:5%;float:left;}
-      pre {width:50%;float:right;}
-      hr {clear:both;}
-      .pass { color: green; } 
-      .fail { color: red; }
-    </style> 
+    <link rel="stylesheet" type="text/css" href="test.css" />
   </head>
   <body> 
     <ul id="results"></ul>
@@ -169,5 +124,21 @@
     </div>      
     <pre></pre>
 
+    <script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
+    <script src="../outliner.js"></script>
+    <script src="test.js"></script>
+    <script>
+      window.onload = function() { 
+        // Tests for the sample markup
+        testOutline('test1', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
+        testOutline('test2', ['HTML5 Doctor articles',['The section element'],['The article element']]);
+        testOutline('test3', [['Untitled aside',['Twitter'],['Recent comments']]]);
+        testOutline('test4', [['Title goes here']]);
+        testOutline('test5', ['Top of the outline',['A heading in the outline'],['Another heading in the outline']]);
+        testOutline('test6', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
+        testOutline('test7', ['A',['C'],['E']]);
+        testOutline('test8', ['My fantastic site',['About me',['What I do for a living']],['Contact']]);
+      };
+    </script>
   </body>
 </html>

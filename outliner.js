@@ -52,6 +52,8 @@ function makeOutline(outlinee, parent) {
   // Walk
   while(current_outlinee) {
 
+    console.log(current_outlinee);
+
     // If it's a sectioning element, create a new level in the outline
     if(isSectioningElement(current_outlinee)) {
 

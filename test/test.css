@@ -1,0 +1,5 @@
+body > div {width:45%;margin-right:5%;float:left;}
+pre {width:50%;float:right;}
+hr {clear:both;}
+.pass { color: green; } 
+.fail { color: red; }
