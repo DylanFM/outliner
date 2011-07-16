@@ -10,11 +10,6 @@
 var headingContent = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HGROUP'],
   sectioningElements = ['SECTION', 'ARTICLE', 'NAV', 'ASIDE'];
 
-// AKA is array
-function isSection(i) {
-  return {}.toString.call(i) == '[object Array]'; 
-}
-
 function isSectioningElement(el) {
   return sectioningElements.indexOf(el.tagName) > -1;
 }
@@ -45,7 +40,7 @@ function dataForHeadingContent(h) {
 
 function makeOutline(outlinee, parent) {
 
-  var section, current_outlinee, heading;
+  var section, current_outlinee, heading, outline;
 
   section = { 
     outlinee: outlinee, 
@@ -68,7 +63,7 @@ function makeOutline(outlinee, parent) {
 
       // If we have an hgroup, find its top heading, otherwise just add the heading
       // Track it if we have a heading
-      if ((heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
+      if (!heading && (heading = current_outlinee.tagName.length > 2 ? topInHgroup(current_outlinee) : current_outlinee)) {
         // We're tracking some more data so we can check rankings of heading content
         section.outline.push(dataForHeadingContent(heading));
       }
@@ -80,12 +75,17 @@ function makeOutline(outlinee, parent) {
 
   }
 
+  // Return this outlinee's outline, but convert it to a simple array
+  outline = section.outline.map(function(i) {
+    // We either want the outline or the content - arrays & strings
+    return Array.isArray(i) ? i : i.content; 
+  });
+
   // If we're not at the root and there are no headings
-  if(parent && section.outline.every(isSection)) {
+  if(parent && outline.every(Array.isArray)) {
     // Give it a generated heading
-    section.outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
+    outline.unshift('Untitled ' + outlinee.tagName.toLowerCase());
   }
 
-  // Return this outlinee's outline
-  return section;
+  return outline;
 }
